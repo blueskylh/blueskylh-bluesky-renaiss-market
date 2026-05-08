@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>Renaiss Market Maker</title>
+    <script>
+      document.documentElement.classList.add('dark');
+    </script>
+  </head>
+  <body>
+    <div id="root"><!--ssr-outlet--></div>
+    <script type="module" src="./src/entry-client.tsx"></script>
+    <script>
+      (function(){
+        var K='__boot_reload', W=30000, M=8;
+        function st(){try{return JSON.parse(sessionStorage.getItem(K))||{c:0,t:0}}catch(e){return{c:0,t:0}}}
+        setTimeout(function(){
+          if(window.__reactOk)return;
+          var s=st(),c=(Date.now()-s.t>W)?0:s.c;
+          if(c<M){sessionStorage.setItem(K,JSON.stringify({c:c+1,t:Date.now()}));location.reload()}
+        },3000);
+      })();
+    </script>
+  </body>
+</html>

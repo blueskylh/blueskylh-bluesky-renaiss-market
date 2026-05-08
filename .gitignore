@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment variables
+backend/.env
+frontend/.env*
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+app.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude
+.claude/
+
+# Vulcan
+.vulcan/
