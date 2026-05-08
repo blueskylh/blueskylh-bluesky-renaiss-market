@@ -45,7 +45,7 @@
 - **AI 卡牌识别**：使用小米 MiMo-V2.5 视觉模型分析卡牌图片，自动生成日文（SNKRDUNK）和英文（PriceCharting）搜索关键词
 - **增量同步**：每日自动检测新增卡牌并同步价格，避免重复处理已同步的卡牌
 - **多语言界面**：中文简体、中文繁体、English、한국어、日本語
-- **多币种显示**：USD、CNY、JPY、KRW（实时汇率）
+- **多币种显示**：USD、CNY、JPY、KRW、MYR（实时汇率）
 - **高级筛选**：按折扣率、价格区间、语言、评级公司、流动性等多维度筛选
 - **列自定义**：13 个数据列均可独立显示/隐藏
 - **骨架屏加载**：数据加载时展示骨架屏动画，避免页面闪烁
@@ -142,11 +142,13 @@ cd frontend && bun run build
 │   │   ├── lib/
 │   │   │   └── api.ts                 # API 请求工具
 │   │   ├── App.tsx                    # 入口组件
-│   │   ├── main.tsx                   # React 挂载点
+│   │   ├── entry-client.tsx           # 客户端挂载点
+│   │   ├── entry-server.tsx           # SSR 入口
+│   │   ├── ErrorBoundary.tsx          # 错误边界
 │   │   └── index.css                  # 全局样式（暗色主题、骨架屏、价格高亮）
+│   ├── public/                        # 静态资源（头像、Logo）
 │   ├── vite.config.ts                 # Vite 配置（代理、别名）
 │   ├── tsconfig.json
-│   ├── tailwind.config.js
 │   └── package.json
 │
 ├── backend/                           # 后端项目
@@ -159,15 +161,18 @@ cd frontend && bun run build
 │   │   ├── combined.js                # 组合同步（SNKRDUNK + PriceCharting）
 │   │   ├── snkrdunk.js                # SNKRDUNK 价格同步
 │   │   ├── pricecharting.js           # PriceCharting 价格同步
-│   │   ├── arbitrage.js               # 套利计算与流动性分析
+│   │   ├── arbitrage.js               # 套利计算
 │   │   └── exchange.js                # 汇率 API
 │   ├── lib/
 │   │   ├── concurrency.js             # Promise.all 分批并发控制
 │   │   ├── jinaFetch.js               # Jina AI 代理请求 + 限速队列
 │   │   └── mimo.js                    # MiMo-V2.5 视觉分析（图片→搜索词）
-│   ├── .env                           # 环境变量
+│   ├── scripts/
+│   │   └── check-env.js               # 环境变量检查
+│   ├── .env.example                   # 环境变量模板
 │   └── package.json
 │
+├── .gitignore
 ├── CLAUDE.md                          # 项目指令文件
 └── README.md                          # 本文件
 ```
@@ -208,7 +213,6 @@ cd frontend && bun run build
 | 方法 | 路径 | 参数 | 说明 |
 |------|------|------|------|
 | GET | `/api/arbitrage` | `threshold`(默认0.85) | 套利机会 TOP 50 |
-| GET | `/api/liquidity` | - | 流动性数据（同 `/api/arbitrage/liquidity`） |
 
 ### 同步接口返回格式
 
@@ -293,21 +297,15 @@ curl -X POST http://localhost:3001/api/pricecharting/sync-all \
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Renaiss 同步（每小时）                                │
+│  Renaiss + 增量 SN+PC 同步（每小时）                    │
 │  api.renaiss.xyz → collectibles 表                    │
-│  只写 Renaiss 自有数据，不碰 SNKRDUNK/PC               │
+│  + 仅新增卡牌 → MiMo → SN + PC → 独立价格表            │
 └─────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────┐
 │  全量 SN+PC 同步（每周一 00:00）                       │
 │  所有已上市卡牌 → MiMo → SN(日版) + PC(全部)          │
 │  覆盖写入 snkrdunk_prices / pricecharting_prices     │
-└─────────────────────────────────────────────────────┘
-                          ↓
-┌─────────────────────────────────────────────────────┐
-│  增量 SN+PC 同步（每天 03:00）                         │
-│  仅新增卡牌（无 snkrdunk_prices 或无 pricecharting_prices 记录）│
-│  MiMo → SN(日版) + PC(全部) → 写入独立价格表           │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -448,10 +446,10 @@ sync_status (独立表，记录同步历史)
 - **平台**: `pricecharting.com`（多语言卡牌价格参考）
 - **语言限制**: 无（处理所有语言）
 - **搜索优先级**:
-  1. 结构化字段：`pokemon_name #card_number set_name`
-  2. 简化搜索：`pokemon_name #card_number`
-  3. MiMo 英文搜索词兜底
-  4. 旧正则逻辑兜底
+  1. 结构化字段：`pokemon_name #card_number set_name` → `pokemon_name #card_number`
+  2. MiMo 视觉分析生成的 `pc_queries`（英文搜索词）
+  3. 旧正则逻辑兜底
+- **搜索词变体**：每个搜索词会自动生成多个变体——`{setCode} {number}`（精确）、`{name} {number} {setCode}`（智能）、`{name} {number}`（精简）、语言前缀变体、仅名称兜底，最多取 5 个去重
 - **价格选择**: 根据评级公司 + 等级精确匹配（PSA 10 → psa10，CGC 8.5 → cgc8_5 → grade8.5 → grade8 向下兼容）
 - **数据内容**: 匹配价格、产品链接、30 天成交量
 
@@ -459,7 +457,7 @@ sync_status (独立表，记录同步历史)
 
 - **API**: `https://open.er-api.com/v6/latest/USD`
 - **缓存**: 5 分钟
-- **支持币种**: USD、CNY、JPY、KRW、HKD、TWD、SGD、EUR、GBP
+- **支持币种**: USD、CNY、JPY、KRW、MYR、HKD、TWD、SGD、EUR、GBP
 - **兜底汇率**: API 不可用时使用硬编码汇率（CNY 7.25, JPY 155, KRW 1350 等）
 
 ---
@@ -578,21 +576,9 @@ CGC 8.5 → cgc8.5 → grade8.5 → grade8（向下兼容）
 `GET /api/arbitrage?threshold=0.85`：
 
 1. 获取所有有挂牌价的卡牌
-2. 计算 `combinedVol30d = snkrdunk_volume_30d + pricecharting_volume_30d`
-3. 筛选 `askPrice / max(snkrdunkPrice, pcPrice) < threshold`
-4. 计算 `profit = bestExternal - askPrice`，`roi = (profit / askPrice) × 100`
-5. 按成交量百分位分配流动性等级
-6. 按 profit 降序返回 TOP 50
-
-### 流动性等级
-
-基于 30 天总成交量的百分位排名：
-
-| 等级 | 百分位 | 含义 |
-|------|--------|------|
-| 高 | Top 30% | 成交活跃 |
-| 中 | 30%-60% | 成交一般 |
-| 低 | Bottom 40% | 成交稀少 |
+2. 筛选 `askPrice / max(snkrdunkPrice, pcPrice) < threshold`
+3. 计算 `profit = bestExternal - askPrice`，`roi = (profit / askPrice) × 100`
+4. 按 profit 降序返回 TOP 50
 
 ---
 
@@ -679,9 +665,8 @@ CGC 8.5 → cgc8.5 → grade8.5 → grade8（向下兼容）
 
 | 时间 | Cron 表达式 | 任务 | 说明 |
 |------|------------|------|------|
-| 每小时 | `0 * * * *` | Renaiss 同步 | 从 Renaiss API 拉取最新卡牌数据 |
+| 每小时 | `0 * * * *` | Renaiss + 增量同步 | 拉取 Renaiss 数据 + 同步新增卡牌的 SN/PC 价格 |
 | 每周一 00:00 | `0 0 * * 1` | 全量 SN+PC 同步 | MiMo + SNKRDUNK + PriceCharting 全量同步 |
-| 每天 03:00 | `0 3 * * *` | 增量 SN+PC 同步 | 仅同步新增卡牌（无价格记录的） |
 
 ---
 

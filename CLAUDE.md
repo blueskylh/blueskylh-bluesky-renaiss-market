@@ -30,9 +30,8 @@ Pokemon card arbitrage detection system deployed in Surf Studio container.
 
 ## Cron Jobs (when CRON_ENABLED=true)
 
-- Renaiss sync: every hour (`0 * * * *`)
-- SNKRDUNK sync: daily at midnight (`0 0 * * *`)
-- PriceCharting sync: daily at noon (`0 12 * * *`)
+- Renaiss + Incremental SN/PC sync: every hour (`0 * * * *`)
+- Full SN+PC sync: weekly Monday 00:00 (`0 0 * * 1`)
 
 ## Development
 
