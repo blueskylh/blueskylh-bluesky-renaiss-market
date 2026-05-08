@@ -1,6 +1,5 @@
 # Renaiss Market Maker
 
-宝可梦卡牌跨平台套利检测工具，实时监控 Renaiss、SNKRDUNK、PriceCharting 三大平台的价格数据，自动发现套利机会。
 
 宝可梦卡牌跨平台套利检测工具，实时监控 [Renaiss Marketplace](https://www.renaiss.xyz) 、SNKRDUNK、PriceCharting 三大平台的卡牌价格数据，自动发现**套利机会**。
 
