@@ -294,25 +294,70 @@ function parseJinaPCPrices(text) {
           }
         }
       }
+      // If tab-regex found nothing (single-line format), use matchAll
+      if (Object.keys(prices).length === 0) {
+        const allRegex = /(Ungraded|Grade\s*\d+\.?\d*|PSA\s*\d+\.?\d*|CGC\s*\d+\.?\d*|BGS\s*\d+[\w\s]*|SGC\s*\d+\.?\d*|Loose)[^\$]*\$([\d,]+\.?\d*)/gi;
+        const matches = [...guideText.matchAll(allRegex)];
+        for (const m of matches) {
+          const label = m[1].trim().toLowerCase().replace(/\s+/g, '');
+          const value = parseFloat(m[2].replace(/,/g, ''));
+          if (value > 0 && value < 1000000) {
+            if (label === 'ungraded' || label === 'loose') prices.ungraded = value;
+            else if (/^grade\d+/.test(label)) prices[`grade${label.replace('grade', '').replace('.', '_')}`] = value;
+            else if (/^psa\d+/.test(label)) prices[`psa${label.replace('psa', '').replace('.', '_')}`] = value;
+            else if (/^cgc\d+/.test(label)) prices[`cgc${label.replace('cgc', '').replace('.', '_')}`] = value;
+            else if (/^bgs\d+/.test(label)) prices[`bgs${label.replace('bgs', '').replace('.', '_')}`] = value;
+            else if (/^sgc\d+/.test(label)) prices[`sgc${label.replace('sgc', '').replace('.', '_')}`] = value;
+          }
+        }
+      }
       if (Object.keys(prices).length > 0) {
         return prices;
       }
     }
 
-    // Fallback: parse individual line patterns
-    const lines = text.split('\n');
-    for (const line of lines) {
-      const m = line.match(/(Ungraded|Grade\s*\d+\.?\d*|PSA\s*\d+\.?\d*|CGC\s*\d+\.?\d*|BGS\s*\d+[\w\s]*|SGC\s*\d+\.?\d*|Loose)[^\$]*\$([\d,]+\.?\d*)/i);
-      if (m) {
-        const label = m[1].trim().toLowerCase().replace(/\s+/g, '');
-        const value = parseFloat(m[2].replace(/,/g, ''));
-        if (value > 0 && value < 1000000) {
-          if (label === 'ungraded' || label === 'loose') prices.ungraded = value;
-          else if (/^grade\d+/.test(label)) prices[`grade${label.replace('grade', '').replace('.', '_')}`] = value;
-          else if (/^psa\d+/.test(label)) prices[`psa${label.replace('psa', '').replace('.', '_')}`] = value;
-          else if (/^cgc\d+/.test(label)) prices[`cgc${label.replace('cgc', '').replace('.', '_')}`] = value;
-          else if (/^bgs\d+/.test(label)) prices[`bgs${label.replace('bgs', '').replace('.', '_')}`] = value;
-          else if (/^sgc\d+/.test(label)) prices[`sgc${label.replace('sgc', '').replace('.', '_')}`] = value;
+    // Fallback: handle single-line Full Price Guide (Jina often returns it on one line with space separators)
+    const priceRegex = /(Ungraded|Grade\s*\d+\.?\d*|PSA\s*\d+\.?\d*|CGC\s*\d+\.?\d*|BGS\s*\d+[\w\s]*|SGC\s*\d+\.?\d*|Loose)[^\$]*\$([\d,]+\.?\d*)/gi;
+    const allLines = text.split('\n');
+    let guideFound = false;
+    for (const line of allLines) {
+      // Detect Full Price Guide section
+      if (!guideFound && /Full Price Guide:/i.test(line)) {
+        guideFound = true;
+        const matches = [...line.matchAll(priceRegex)];
+        for (const m of matches) {
+          const label = m[1].trim().toLowerCase().replace(/\s+/g, '');
+          const value = parseFloat(m[2].replace(/,/g, ''));
+          if (value > 0 && value < 1000000) {
+            if (label === 'ungraded' || label === 'loose') prices.ungraded = value;
+            else if (/^grade\d+/.test(label)) prices[`grade${label.replace('grade', '').replace('.', '_')}`] = value;
+            else if (/^psa\d+/.test(label)) prices[`psa${label.replace('psa', '').replace('.', '_')}`] = value;
+            else if (/^cgc\d+/.test(label)) prices[`cgc${label.replace('cgc', '').replace('.', '_')}`] = value;
+            else if (/^bgs\d+/.test(label)) prices[`bgs${label.replace('bgs', '').replace('.', '_')}`] = value;
+            else if (/^sgc\d+/.test(label)) prices[`sgc${label.replace('sgc', '').replace('.', '_')}`] = value;
+          }
+        }
+        break;
+      }
+    }
+
+    // Last resort: line-by-line fallback (skip eBay listings)
+    if (Object.keys(prices).length === 0) {
+      const lineRegex = /(Ungraded|Grade\s*\d+\.?\d*|PSA\s*\d+\.?\d*|CGC\s*\d+\.?\d*|BGS\s*\d+[\w\s]*|SGC\s*\d+\.?\d*|Loose)[^\$]*\$([\d,]+\.?\d*)/i;
+      for (const line of allLines) {
+        if (line.includes('[eBay]')) continue;
+        const m = line.match(lineRegex);
+        if (m) {
+          const label = m[1].trim().toLowerCase().replace(/\s+/g, '');
+          const value = parseFloat(m[2].replace(/,/g, ''));
+          if (value > 0 && value < 1000000) {
+            if (label === 'ungraded' || label === 'loose') prices.ungraded = value;
+            else if (/^grade\d+/.test(label)) prices[`grade${label.replace('grade', '').replace('.', '_')}`] = value;
+            else if (/^psa\d+/.test(label)) prices[`psa${label.replace('psa', '').replace('.', '_')}`] = value;
+            else if (/^cgc\d+/.test(label)) prices[`cgc${label.replace('cgc', '').replace('.', '_')}`] = value;
+            else if (/^bgs\d+/.test(label)) prices[`bgs${label.replace('bgs', '').replace('.', '_')}`] = value;
+            else if (/^sgc\d+/.test(label)) prices[`sgc${label.replace('sgc', '').replace('.', '_')}`] = value;
+          }
         }
       }
     }
@@ -448,6 +493,9 @@ function findBestPCMatchJina(text, cardName, number, paddedNumber, setCode, lang
     const hasLang = slug.includes('japanese') || slug.includes('jpn') || slug.includes('english');
     if (lang === 'japanese' && (hasLang || !slug.includes('english'))) score += 30;
     else if (lang === 'english' && slug.includes('english')) score += 30;
+    else if (lang === 'korean') {
+      if (!slug.includes('korean')) continue; // Korean cards only match Korean products
+    }
 
     // 4. Check if card subject (pokemon name) is in slug
     const nameWords = cardSubjectSlug.split(/\s+/).filter(w => w.length > 2);
@@ -503,6 +551,14 @@ async function searchPriceCharting(query, cardName, number, paddedNumber, setCod
 
     if (isProductPage) {
       console.log(`  [PC Search] Direct product page hit`);
+      // Language filter: Korean cards must land on Korean product pages
+      if (language === 'korean') {
+        const pageSlug = (text.match(/pricecharting\.com\/game\/([^\s<]+)/) || [])[1] || '';
+        if (!pageSlug.toLowerCase().includes('korean')) {
+          console.log(`  [PC Search] Skipping non-Korean product for Korean card`);
+          return null;
+        }
+      }
       const prices = parseJinaPCPrices(text);
       if (prices) {
         // Extract product name from page title
@@ -711,6 +767,22 @@ async function syncSinglePriceCharting(card, env, mimoResult) {
 
     console.log(`  Found: ${result.name}`);
     console.log(`  Prices: ${JSON.stringify(prices)}`);
+
+    // Language filter on product URL
+    const productSlug = (result.url || '').toLowerCase();
+    const lang = (detectedLanguage || 'Japanese').toLowerCase();
+    if (lang === 'korean' && !productSlug.includes('korean')) {
+      console.log(`  Language mismatch: Korean card matched non-Korean product, skipping`);
+      continue;
+    }
+    if (lang === 'japanese' && productSlug.includes('english')) {
+      console.log(`  Language mismatch: Japanese card matched English product, skipping`);
+      continue;
+    }
+    if (lang === 'english' && (productSlug.includes('japanese') || productSlug.includes('jpn'))) {
+      console.log(`  Language mismatch: English card matched Japanese product, skipping`);
+      continue;
+    }
 
     const price = getBestPCPrice(prices, cardName);
     const { company, grade } = parseCardGrade(cardName);
