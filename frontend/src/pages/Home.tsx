@@ -24,6 +24,9 @@ const translations = {
     totalPcSpread: 'PC套利空间',
     totalSpread: '总套利空间',
     totalSpreadHint: 'FMV空间 + SN空间 + PC空间',
+    disclaimerRisk: '风险提示与免责声明：',
+    disclaimerText: '本工具数据存在延迟（约每小时/动态更新），卡牌信息及价格可能存在偏差。数据仅供套利参考，不保证绝对准确。',
+    disclaimerWarning: '执行买入前，请务必前往各大官方平台进行二次核实。',
     metricsDoc: '数据口径',
     columnSettings: '列设置',
     hideImages: '隐藏图片',
@@ -136,6 +139,9 @@ const translations = {
     totalPcSpread: 'PC套利空間',
     totalSpread: '總套利空間',
     totalSpreadHint: 'FMV空間 + SN空間 + PC空間',
+    disclaimerRisk: '風險提示與免責聲明：',
+    disclaimerText: '本工具數據存在延遲（約每小時/動態更新），卡牌資訊及價格可能存在偏差。數據僅供套利參考，不保證絕對準確。',
+    disclaimerWarning: '執行買入前，請務必前往各大官方平台進行二次核實。',
     metricsDoc: '數據口徑',
     columnSettings: '列設置',
     hideImages: '隱藏圖片',
@@ -248,6 +254,9 @@ const translations = {
     totalPcSpread: 'PC Spread',
     totalSpread: 'Total Spread',
     totalSpreadHint: 'FMV + SN + PC',
+    disclaimerRisk: 'Disclaimer:',
+    disclaimerText: 'Data may be delayed (updated approximately hourly/dynamically). Card information and prices may contain inaccuracies. Data is for arbitrage reference only and is not guaranteed to be absolutely accurate.',
+    disclaimerWarning: 'Before making any purchase, please verify on the official platforms.',
     metricsDoc: 'Metrics',
     columnSettings: 'Columns',
     hideImages: 'Hide Images',
@@ -360,6 +369,9 @@ const translations = {
     totalPcSpread: 'PC 스프레드',
     totalSpread: '총 스프레드',
     totalSpreadHint: 'FMV + SN + PC',
+    disclaimerRisk: '면책 조항:',
+    disclaimerText: '본 도구의 데이터는 지연될 수 있습니다(약 매시간/동적 업데이트). 카드 정보 및 가격에 부정확함이 있을 수 있습니다. 데이터는 차익거래 참고용이며 절대적 정확성을 보장하지 않습니다.',
+    disclaimerWarning: '구매 전 반드시 각 공식 플랫폼에서 재확인하시기 바랍니다.',
     metricsDoc: '지표 정의',
     columnSettings: '열 설정',
     hideImages: '이미지 숨기기',
@@ -470,6 +482,9 @@ const translations = {
     totalPcSpread: 'PCスプレッド',
     totalSpread: '合計スプレッド',
     totalSpreadHint: 'FMV + SN + PC',
+    disclaimerRisk: '免責事項：',
+    disclaimerText: '本ツールのデータは遅延している場合があります（約1時間ごと/動的更新）。カード情報や価格に不正確な場合があります。データは裁定取引の参考用であり、絶対的な正確性は保証されません。',
+    disclaimerWarning: '購入前に、各大公式プラットフォームで必ず再確認してください。',
     metricsDoc: 'データ定義',
     columnSettings: '列設定',
     hideImages: '画像を隠す',
@@ -1142,6 +1157,18 @@ export default function HomePage() {
               <div className="summaryHint">{t('totalSpreadHint')}</div>
             </div>
           </div>
+        </div>
+
+        {/* Disclaimer Banner */}
+        <div className="flex items-start gap-3 mb-4 rounded-lg bg-orange-900/10 border border-orange-800/30 px-4 py-3 text-sm text-orange-200/80">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mt-0.5 shrink-0 text-orange-300/80">
+            <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+          </svg>
+          <p>
+            <span className="font-bold">{t('disclaimerRisk')}</span>
+            {t('disclaimerText')}
+            <span className="text-orange-300 font-semibold"> {t('disclaimerWarning')}</span>
+          </p>
         </div>
 
         {/* Toolbar */}
