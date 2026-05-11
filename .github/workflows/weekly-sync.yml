@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Trigger Weekly Sync API
         run: |
-          curl -s -X POST "https://deploy-to-surf-database-9e8837.surf.computer/api/combined/sync-all?limit=5000&concurrency=2" \
+          curl -s -X POST "https://deploy-to-surf-database-9e8837.surf.computer/api/combined/sync-all?limit=3000&concurrency=20" \
           -u "${{ secrets.SURF_AUTH_TOKEN }}"
