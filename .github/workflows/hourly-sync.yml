@@ -1,7 +1,7 @@
 name: Hourly Sync
 
 on:
-  # 定时触发：每小时的第 0 分钟执行
+  # 定时触发：每小时的第 0 分钟执行（UTC 时间）
   schedule:
     - cron: '0 * * * *'
   # 允许在 GitHub 网页端手动点击运行，方便测试
