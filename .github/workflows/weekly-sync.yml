@@ -1,0 +1,16 @@
+name: Weekly Combined Sync
+
+on:
+  # 定时触发：UTC 时间每周日 16:00（对应东八区每周一 00:00）
+  schedule:
+    - cron: '0 16 * * 0'
+  workflow_dispatch: 
+
+jobs:
+  run-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Weekly Sync API
+        run: |
+          curl -s -X POST "https://deploy-to-surf-database-9e8837.surf.computer/api/combined/sync-all?limit=5000&concurrency=2" \
+          -u "${{ secrets.SURF_AUTH_TOKEN }}"
