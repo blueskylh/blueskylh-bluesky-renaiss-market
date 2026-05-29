@@ -1,1 +1,2 @@
 - [Hourly Sync] Latest run: 2026-05-29 16:03:42 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-05-29 16:46:33 (UTC+8)
