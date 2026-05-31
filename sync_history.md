@@ -22,3 +22,4 @@
 - [Hourly Sync] Latest run: 2026-05-31 20:12:59 (UTC+8)
 - [Hourly Sync] Latest run: 2026-05-31 22:43:42 (UTC+8)
 - [Hourly Sync] Latest run: 2026-06-01 00:07:22 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-06-01 01:17:39 (UTC+8)
