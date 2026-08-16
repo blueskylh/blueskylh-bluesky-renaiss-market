@@ -833,3 +833,4 @@
 - [Hourly Sync] Latest run: 2026-08-16 22:20:14 (UTC+8)
 - [Hourly Sync] Latest run: 2026-08-16 23:19:07 (UTC+8)
 - [Hourly Sync] Latest run: 2026-08-17 00:21:44 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-08-17 00:33:16 (UTC+8)
