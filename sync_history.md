@@ -993,3 +993,4 @@
 - [Hourly Sync] Latest run: 2026-08-23 22:20:56 (UTC+8)
 - [Hourly Sync] Latest run: 2026-08-23 23:20:05 (UTC+8)
 - [Hourly Sync] Latest run: 2026-08-24 00:22:30 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-08-24 00:33:59 (UTC+8)
