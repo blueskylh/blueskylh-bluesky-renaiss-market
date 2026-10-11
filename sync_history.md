@@ -1312,3 +1312,4 @@
 - [Hourly Sync] Latest run: 2026-10-11 12:08:50 (UTC+8)
 - [Hourly Sync] Latest run: 2026-10-11 19:13:02 (UTC+8)
 - [Hourly Sync] Latest run: 2026-10-12 01:21:24 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-10-12 04:08:55 (UTC+8)
