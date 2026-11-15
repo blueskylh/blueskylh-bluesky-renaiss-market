@@ -1476,3 +1476,4 @@
 - [Hourly Sync] Latest run: 2026-11-15 12:54:41 (UTC+8)
 - [Hourly Sync] Latest run: 2026-11-15 20:30:12 (UTC+8)
 - [Hourly Sync] Latest run: 2026-11-16 03:13:55 (UTC+8)
+- [Weekly Combined Sync] Latest run: 2026-11-16 04:57:46 (UTC+8)
